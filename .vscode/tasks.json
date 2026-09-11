@@ -1,0 +1,108 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "ReleaseBuild",
+            "type": "shell",
+            "command": "./cc.bat",
+            "args": [
+                "-target:winexe",
+                ".\\FileSearchApp\\FileSearchApp\\EntryPointMain\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Assembler\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Model\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\View\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\ViewModel\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Other\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\DebugWindow\\*.cs",
+                ".\\FileSearchApp\\CustomFunctions\\*.cs",
+                ".\\FileSearchApp\\MyNativeMethod_Function\\*.cs",
+                ".\\FileSearchApp\\CsharpNized_Rust_std\\*.cs",
+                "/win32icon:app.ico",
+            ],
+            "group": {"kind": "build", "isDefault": false},
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher":[]
+        },
+        {
+            "label": "DebugBuild",
+            "type": "shell",
+            "command": "./cc.bat",
+            "args": [
+                ".\\FileSearchApp\\FileSearchApp\\EntryPointMain\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Assembler\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Model\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\View\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\ViewModel\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Other\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\DebugWindow\\*.cs",
+                ".\\FileSearchApp\\CustomFunctions\\*.cs",
+                ".\\FileSearchApp\\MyNativeMethod_Function\\*.cs",
+                ".\\FileSearchApp\\CsharpNized_Rust_std\\*.cs",
+                "/win32icon:app.ico",
+            ],
+            "group": {"kind": "build", "isDefault": true},
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher":[]
+        },
+        {
+            "label": "TestBuild",
+            "type": "shell",
+            "command": "./cc.bat",
+            "args": [
+                ".\\FileSearchApp\\FileSearchApp\\EntryPointTest\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Assembler\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Model\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\View\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\ViewModel\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Other\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\DebugWindow\\*.cs",
+                ".\\FileSearchApp\\CustomFunctions\\*.cs",
+                ".\\FileSearchApp\\MyNativeMethod_Function\\*.cs",
+                ".\\FileSearchApp\\CsharpNized_Rust_std\\*.cs",
+            ],
+            "group": {"kind": "build", "isDefault": false},
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher":[]
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "./test.exe",
+            "group": {"kind": "test", "isDefault": false},
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher":[]
+        },
+        {
+            "label": "TestBuild and Test",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "TestBuild",
+                "Test"
+            ],
+        },
+        {
+            "label": "OptionBuild",
+            "type": "shell",
+            "command": "./cc.bat",
+            "args": [
+                "-target:winexe",
+                ".\\FileSearchApp\\DeleteApp\\*.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Model\\MMessageBox.cs",
+                ".\\FileSearchApp\\FileSearchApp\\Model\\MInputBox.cs",
+                ".\\FileSearchApp\\CustomFunctions\\*.cs",
+                ".\\FileSearchApp\\MyNativeMethod_Function\\*.cs",
+                ".\\FileSearchApp\\CsharpNized_Rust_std\\*.cs",
+                "/win32icon:app.ico",
+            ],
+            "group": {"kind": "build", "isDefault": false},
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher":[]
+        }
+    ]
+}

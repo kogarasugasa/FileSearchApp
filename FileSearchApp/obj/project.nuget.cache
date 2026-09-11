@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "nG1AxlJg0as=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\wahuk\\MySoftware\\FileSearchApp\\FileSearchApp\\FileSearchApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\wahuk\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.3\\microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "C:\\Users\\wahuk\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net48\\1.0.3\\microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512",
+    "C:\\Users\\wahuk\\.nuget\\packages\\system.windows.forms\\4.0.0\\system.windows.forms.4.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
