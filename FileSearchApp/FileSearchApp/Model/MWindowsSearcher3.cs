@@ -30,7 +30,9 @@ namespace FileSearchApp
             {
                 await Task.Run(async () =>
                 {
-                    var keyWords = pSearchWords.Select(val => new KeyWord(val.Word, val.Fuzzy));
+                    var keyWords = pSearchWords.Select(val => {
+                        return new KeyWord { Word = val.Word, Fuzzy = val.Fuzzy };
+                    });
                     foreach (var psInfo in CreateWhereStartInfo(pDirPath, keyWords))
                     {
                         if (ct.IsCancellationRequested){
@@ -102,7 +104,7 @@ CustomLogger.WriteLine(info.Arguments);
             {
                 var searchWords = pSearchWords
                     .Where(val => val.Word.Trim() != string.Empty)
-                    .Select(val => new KeyWord(val.Word, val.Fuzzy))
+                    .Select(val => new KeyWord { Word = val.Word, Fuzzy = val.Fuzzy })
                 ;
                 if (searchWords.Count() == 0){
                     throw new Exception("where クエリのコマンドの作成に失敗しました");

@@ -8,8 +8,6 @@ using CSharpNized.Rust.std;
 using CustomFunctions;
 using System.Drawing;
 using System.IO;
-using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace FileSearchApp
 {
@@ -74,8 +72,8 @@ namespace FileSearchApp
                 if (disposing){
                     // メッセージの受信を停止する
                     _mMessageReceiver.Dispose();
-                    // タブを保存する
-                    _mTabRestore.SaveVMRead(_conf.WriteContinueTab);
+                    // タブを内容を保存する
+                    _mTabRestore.SaveVMRead(_conf.WriteContinueTabDetail);
                     // 履歴を保存する 時間がかかるので別スレッドで実行し最後に Wait する
                     var historySaveTask = Task.Run(() => {
                         if (_mHistoryManager.IsLoad || _mHistoryManager.Count > 0){
@@ -152,12 +150,10 @@ namespace FileSearchApp
                 }
                 else {
                     var name = ExFileInfo.GetFileName(e.Message);
+                    var alias = _mAliasManager.GetAlias(name).GetOrDefault("");
                     var checkeTags = _mTagManager.GetTags(name);
                     var allTags = _mTagManager.GetAllTags();
-                    var alias = _mAliasManager.GetAlias(name).GetOrDefault(name);
-                    var result = Task.Run(() => {
-                        return MInputBoxTagAlias.GetTagAlias(e.Message, alias, allTags, checkeTags);
-                    });
+                    var result = Task.Run(() => MInputBoxTagAlias.GetTagAlias(e.Message, alias, allTags, checkeTags));
                     result.WaitByPollingLoop(100);
                     result.Result.IfSome(some => {
                         foreach (var tag in _mTagManager.GetAllTags())
@@ -183,48 +179,44 @@ namespace FileSearchApp
         {
             var vm = new VMFileSearchTab(new MTabManager(this));
             _mTabRestore.VMReadMethod = () => {
-                var records = vm.GetRecords();
                 var data = new Dictionary<string, IEnumerable<string>>();
-                int num = 1;
-                foreach (var record in records)
+                var vmSaveRecords = vm.GetTabRecords();
+                foreach (var record in vmSaveRecords)
                 {
-                    var paths = new List<string>();
-                    var source = record.ListView.DataSource;
-                    for (int i = 0; i < source.Count; i++)
-                    {
-                        paths.Add(source.ElementAt(i).FilePath);
-                    }
-                    data.Add(num.ToString(), paths);
-                    num++;
+                    var list = record.ListView.DataSource.GetKeyValuePairs()
+                        .Select(val => val.Value.FilePath)
+                    ;
+                    data.Add(record.Key, list);
                 }
                 return data;
             };
-            _mTabRestore.Read(_conf.ReadContinueTab);
-            var readData = _mTabRestore.GetRecords();
-            for(int i = vm.Count; i < readData.Count; i++) vm.OnAddClick();
-            var readKeys = readData.Keys.Select(val => val).ToList();
-            var vmRecords = vm.GetRecords();
-            for (int i = 0; i < readData.Count; i++)
+            _mTabRestore.Read(_conf.ReadContinueTabDetail);
+            // vmにタブを追加
+            for (int i = vm.Count; i < _mTabRestore.Count; i++) vm.OnAddClick();
+            // vmのタブにデータをセットする
+            var vmReadRecords = vm.GetTabRecords();
+            var restoreKeys = _mTabRestore.Keys;
+            for (int i = 0; i < restoreKeys.Count; i++)
             {
-                foreach (var path in readData[readKeys[i]])
+                foreach (var path in _mTabRestore.Get(restoreKeys[i]))
                 {
-                    vmRecords[i].ListView.Add(new ExFileInfo(path));
+                    vmReadRecords[i].ListView.DataSource.Add(new ExFileInfo(path));
                 }
-                if (vmRecords[i].ListView.Count != 0){
-                    vmRecords[i].ListView.SelectItem(0);
-                    var info = vmRecords[i].ListView.GetExFileInfo();
-                    _mAliasManager.GetAlias(info.FileName).IfSome(some => info.Alias = some);
-                    vm.OnSelectClick(vmRecords[i].Key);
+                if (_mTabRestore.Get(restoreKeys[i]).Any()){
+                    vmReadRecords[i].ListView.SelectItem(0);
+                    var info = vmReadRecords[i].ListView.GetExFileInfo();
+                    _mAliasManager.GetAlias(info.FileName)
+                        .IfSome(some => info.Alias = some)
+                    ;
                 }
-                //vm.ChangeTagName(vm.Record.Key);
+                vm.ChangeTagName(vmReadRecords[i].Key);
             }
             return vm;
         }
         public void GetViewModel(
-            out VMFileSearchApp pVMFileSearchApp,
-            out VMListView pVMListView,
-            out VMOptionMenu pVMOption
-            )
+        out VMFileSearchApp pVMFileSearchApp,
+        out VMListView pVMListView,
+        out VMOptionMenu pVMOption)
         {
             lock (_lock)
             {
@@ -237,12 +229,15 @@ namespace FileSearchApp
                 vml.ErrorNotification += (s, e) => MMessageBox.Show(e);
                 var menuCreater = new MenuRangeTree();
                 menuCreater.GetSettingsMethod = _conf.ReadContextMenu;
-                var fac = new ListViewMenuFactory(){
+                var fac = new ListViewMenuFactory()
+                {
                     GetFileInfoMethod = vml.GetExFileInfo,
                     RedrawListViewMethod = () => vml.RiseDataSourceChange(true),
                     TagManager = Some.New(tag),
                     AliasManager = Some.New(alias),
-                    UserMenuCreater = Some.New(menuCreater)
+                    UserMenuCreater = Some.New(menuCreater),
+                    VMListView = Some.New(vml),
+                    HistoryManager = Some.New(his)
                 };
                 vml.ListViewMenuFactory = fac;
                 var pows = new MPowerShellSearcher(_conf.GetScriptDirectoryPath());
@@ -290,12 +285,12 @@ namespace FileSearchApp
                 vmMain.GetIsRealOnlyMethod = _conf.IsReadOnly;
                 var vmOption = new VMOptionMenu();
                 vmOption.AutoSaveStatusChanging += (s, e) => {
-                    if (_conf.IsReadOnly()){
-                        e.Cancel = true;
-                        MMessageBox.Show("読取専用では有効化できません");
-                        return;
-                    }
                     if (e.ChangeToEnable){
+                        if (_conf.IsReadOnly()){
+                            e.Cancel = true;
+                            MMessageBox.Show("読取専用では有効化できません");
+                            return;
+                        }
                         e.ShowProgressView(ct => MMessageBox.ShowAsync("有効化しています...", ct));
                     }
                 };

@@ -181,6 +181,6 @@ namespace FileSearchApp
                 this.Load.Invoke(this, "MAliasManager.Read() completed time : " + sw.ElapsedMilliseconds);
             }
         }
-        public event EventHandler<string> Load = delegate{};
+        public event EventHandler<string> Load = delegate { };
     }
 }

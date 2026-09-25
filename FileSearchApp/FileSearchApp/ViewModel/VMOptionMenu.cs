@@ -163,6 +163,44 @@ namespace FileSearchApp
                 });
             };
             menuItems.Add(item);
+            // ライセンス
+            item = new ToolStripMenuItem("ライセンス");
+            item.Click += (s, e) => {
+                try
+                {
+                    var path = System.AppDomain.CurrentDomain.BaseDirectory;
+                    path = path.EndsWith("\\") ?
+                        path + "LICENSE" :
+                        path + "\\LICENSE"
+                    ;
+                    using (var w = new System.IO.StreamWriter(path))
+                    {
+                        w.NewLine = "\n";
+                        w.WriteLine(CustomFunctions.GPLv2.License());
+                        w.WriteLine("|");
+                        w.WriteLine("|");
+                        w.WriteLine("|");
+                        w.WriteLine("|");
+                        w.WriteLine(CustomFunctions.GPLv2.LicenseJp());
+                        w.WriteLine("|");
+                    }
+                    using (var pro = new System.Diagnostics.Process())
+                    {
+                        var psInfo = new System.Diagnostics.ProcessStartInfo{
+                            FileName = "notepad.exe",
+                            Arguments = path,
+                            UseShellExecute = true
+                        };
+                        pro.StartInfo = psInfo;
+                        pro.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MMessageBox.Show(ex.ToString());
+                }
+            };
+            menuItems.Add(item);
             // MenuItem を戻す
             return menuItems;
         }

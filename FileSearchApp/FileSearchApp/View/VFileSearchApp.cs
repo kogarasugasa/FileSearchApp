@@ -11,6 +11,8 @@ namespace FileSearchApp
     {
         readonly object _lock = new object();
         readonly object _controlTag_Tab = new object();
+        readonly Color _defFormColor = new Form().BackColor;
+        readonly Color _readOnlyFormColor = Color.LightSkyBlue;
         string _title = "Search";
         Action _parentDispose;
         IOption<ListViewItem> _topItem = new None<ListViewItem>(); // リストビューにタブでフォーカスした場合に先頭行にレティクルが表示される問題の対策用
@@ -138,6 +140,15 @@ namespace FileSearchApp
             _listView.Columns.AddRange(_vmWindow.ListViewColumnHeaders);
             _listView.ContextMenuStrip = new ContextMenuStrip();
             _listView.AllowDrop = true; //ドラッグドロップでファイルを追加する為
+        }
+    }
+    class MyView
+    {
+        public Form MainForm;
+        public Button RunButton = new Button();
+        public MyView(Form pForm)
+        {
+            this.MainForm = pForm;
         }
     }
 }

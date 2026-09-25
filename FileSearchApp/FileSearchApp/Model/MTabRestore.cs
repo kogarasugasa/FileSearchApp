@@ -17,16 +17,11 @@ namespace FileSearchApp
         {
             this.VMReadMethod = () => new Dictionary<string, IEnumerable<string>>();
         }
-        public Dictionary<int, IEnumerable<string>> GetRecords()
+        public IEnumerable<string> Get(int pKey)
         {
             lock (_lock)
             {
-                var data = new Dictionary<int, IEnumerable<string>>();
-                foreach (var rec in _tabs)
-                {
-                    data.Add(rec.Key, rec.Value);
-                }
-                return data;
+                return _tabs[pKey];
             }
         }
         public void Read(Func<Dictionary<string, IEnumerable<string>>> func)
@@ -79,5 +74,6 @@ namespace FileSearchApp
             }
             pSaveMethod(data);
         }
+        
     }
 }

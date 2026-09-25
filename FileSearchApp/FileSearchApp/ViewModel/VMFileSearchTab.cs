@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CustomFunctions;
+using CSharpNized.Rust.std;
 
 namespace FileSearchApp
 {
@@ -32,9 +34,9 @@ namespace FileSearchApp
             _record = _tabManager.GetFirstOrNew();
             _tabManager.Remove(_record.Key);
         }
-        public List<TabRecord> GetRecords()
+        public ReadOnlyCollection<TabRecord> GetTabRecords()
         {
-            return _tabManager.Records.ToList();
+            return _tabManager.Records;
         }
         public void OnAddClick()
         {
@@ -74,22 +76,29 @@ namespace FileSearchApp
         }
         public void ChangeTagName(string pKey = "")
         {
-            var oldVm = this.Record;
-            _tabManager.GetViewModel(pKey).IfSome(some => oldVm = some);
-            { // タブに表示する文字を半角5文字くらいに制限する
+            TabRecord textSource = this.Record;
+            _tabManager.GetViewModel(pKey).IfSome(some => textSource = some);
+            {
                 var texts = new List<string>();
-                if (oldVm.FileSearch.SearchWords != string.Empty){
-                    texts.Add(oldVm.FileSearch.SearchWords);
+                if (textSource.FileSearch.SearchWords != ""){
+                    texts.Add(textSource.FileSearch.SearchWords);
                 }
-                if (oldVm.ListView.SelectedIndex != -1){
-                    texts.Add(oldVm.ListView.GetExFileInfo().DispFileName(oldVm.ListView.AliasEnabled));
+                if (textSource.ListView.SelectedIndex != -1){
+                    var info = textSource.ListView.GetExFileInfo();
+                    var name = info.DispFileName(textSource.ListView.AliasEnabled);
+                    if (name != ""){
+                        texts.Add(name);
+                    }
                 }
                 if (texts.Count == 0){
-                    texts.Add(oldVm.Key);
+                    texts.Add(textSource.Key);
                 }
-                var text = texts.First();
+                var text = texts.Get(0).Match(
+                    none => "err",
+                    some => some
+                );
                 if (text != string.Empty){
-                    oldVm.Text = text;
+                    textSource.Text = text;
                 }
             }
         }

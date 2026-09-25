@@ -142,7 +142,9 @@ namespace FileSearchApp
             if (this.SearchWords.Length == 0){
                 return;
             }
-            var word = searchWords.Select(val => new KeyWord(val.Word, val.Fuzzy));
+            var word = searchWords.Select(val =>{
+                return new KeyWord { Word = val.Word, Fuzzy = val.Fuzzy };
+            });
             this.WindowsSearcher.SearchWords = word.ToList();
             tasks.Add(this.WindowsSearcher.StartSearchAsync(_cts.Token));
             if (this.SearchWords.Length == 0){
@@ -230,7 +232,7 @@ namespace FileSearchApp
             var splitted = pSearchWords.Split(':').Where(val => val != "");
             // 「*」だけの検索条件がある場合他の条件は無視する
             if (splitted.Any(val => val.All(val2 => val2 == '*'))){
-                return new List<KeyWord>{ new KeyWord("*", true) };
+                return new List<KeyWord>{ new KeyWord { Word = "*", Fuzzy = true } };
             }
             // 別名が設定されている物は紐づいたファイル名で検索する
             var fromAlias = splitted
@@ -238,8 +240,12 @@ namespace FileSearchApp
                 .SelectMany(val => val)
             ;
             var searchWords = new List<KeyWord>();
-            searchWords.AddRange(splitted.Select(str => new KeyWord(str, true)));
-            searchWords.AddRange(fromAlias.Select(str => new KeyWord(str, false)));
+            searchWords.AddRange(splitted.Select(str => {
+                return new KeyWord { Word = str, Fuzzy = true };
+            }));
+            searchWords.AddRange(fromAlias.Select(str =>{
+                return new KeyWord { Word = str, Fuzzy = false };
+            }));
             return searchWords;
         }
         public void CancelSearch()

@@ -1,21 +1,24 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSearchApp", "FileSearchApp\FileSearchApp.csproj", "{2FC0D9DB-78E6-4FFD-8F9C-5AA837555CC4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSearchApp", "FileSearchApp\FileSearchApp.csproj", "{47C56C1D-4C9B-4673-5908-69F7CA4E23C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{47C56C1D-4C9B-4673-5908-69F7CA4E23C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47C56C1D-4C9B-4673-5908-69F7CA4E23C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47C56C1D-4C9B-4673-5908-69F7CA4E23C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47C56C1D-4C9B-4673-5908-69F7CA4E23C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2FC0D9DB-78E6-4FFD-8F9C-5AA837555CC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2FC0D9DB-78E6-4FFD-8F9C-5AA837555CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2FC0D9DB-78E6-4FFD-8F9C-5AA837555CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2FC0D9DB-78E6-4FFD-8F9C-5AA837555CC4}.Release|Any CPU.Build.0 = Release|Any CPU
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C750DA7A-F6D8-409C-8F19-8A61E9C5DFF9}
 	EndGlobalSection
 EndGlobal

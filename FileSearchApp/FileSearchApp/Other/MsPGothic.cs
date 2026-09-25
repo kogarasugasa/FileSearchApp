@@ -11,17 +11,22 @@ namespace FileSearchApp
         // ======+=========+=========+=========+=========+=========+=========+=========+
         // = フィールド
         // ======+=========+=========+=========+=========+=========+=========+=========+
-        static readonly SortedSet<char> Chars_02_Pixels = new SortedSet<char>("'.;:,".ToArray());
-        static readonly SortedSet<char> Chars_03_Pixels = new SortedSet<char>("Iil!|ﾞ".ToArray());
-        static readonly SortedSet<char> Chars_04_Pixels = new SortedSet<char>(" fjrt[]ﾞ".ToArray());
+        static readonly SortedSet<char> Chars_02_Pixels =
+            new SortedSet<char>("'.;:,".ToArray());
+        static readonly SortedSet<char> Chars_03_Pixels =
+            new SortedSet<char>("Iil!|ﾞ".ToArray());
+        static readonly SortedSet<char> Chars_04_Pixels =
+            new SortedSet<char>(" fjrt[]ﾞﾟ".ToArray());
         static readonly SortedSet<char> Chars_05_Pixels =
             new SortedSet<char>("hkpqxz/*+\"#$%&()=~^\\{}<>?_`ｧｨｩｪｫｯ".ToArray());
         static readonly SortedSet<char> Chars_06_Pixels =
             new SortedSet<char>("abcegdLnosuvyw-0123456789".ToArray());
-        static readonly SortedSet<char> Chars_07_Pixels = new SortedSet<char>("ES@".ToArray());
+        static readonly SortedSet<char> Chars_07_Pixels =
+            new SortedSet<char>("ES@".ToArray());
         static readonly SortedSet<char> Chars_08_Pixels =
             new SortedSet<char>("ABCDFGHJKNOPQRTUVXYZｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾉﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝｰ".ToArray());
-        static readonly SortedSet<char> Chars_09_Pixels = new SortedSet<char>("MmW".ToArray());
+        static readonly SortedSet<char> Chars_09_Pixels =
+            new SortedSet<char>("MmW".ToArray());
         //static readonly SortedSet<char> Chars_11_Pixels = new SortedSet<char>("漢字".ToArray());
 
         // ======+=========+=========+=========+=========+=========+=========+=========+
@@ -53,24 +58,22 @@ namespace FileSearchApp
         }
         public static string GetAdjustedText(string pSource, int pMaxPixels)
         {
-            var sourceTrimed = pSource.Trim().ToHarf();
-            if (sourceTrimed == string.Empty){
-                return sourceTrimed;
+            var chars = pSource.Trim().ToCharArray();
+            if (!chars.Any()){
+                return new string(chars);
             }
             if (Environment.UserName.ToLower() == "wahuku"){
-                sourceTrimed = MsPGothic.RemoveInitialParenthesis(sourceTrimed);
+                chars = MsPGothic.RemoveInitialParenthesis(new string(chars)).ToCharArray();
             }
             double length = 0;
-            var chars = sourceTrimed.ToCharArray();
-            for (int i = 0; i < sourceTrimed.Length; i++)
+            for (int i = 0; i < chars.Length; i++)
             {
                 length += MsPGothic.GetWidthCustomValue(chars[i]);
                 if (length >= pMaxPixels){
-                    sourceTrimed = new string(chars.Take(i).ToArray());
-                    break;
+                    return new string(chars.Take(i).ToArray());
                 }
             }
-            return sourceTrimed;
+            return new string(chars);
         }
         /// <summary>
         /// 文字列先頭の括弧'('から')'までを削除します

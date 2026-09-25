@@ -16,7 +16,7 @@ namespace FileSearchApp
             {
                 //以下テストコード
                 msg.Add("2025/03/24 09:23"); //チェックポイント
-                var kw = new KeyWord("*", true);
+                var kw = new KeyWord { Word = "*", Fuzzy = true };
                 var info = new ExFileInfo(@"C:\Directory\Test.txt");
                 if (!kw.MatchTo(info, MatchToExtension.Include)){
                     return msg;
@@ -26,52 +26,52 @@ namespace FileSearchApp
                     return msg;
                 }
                 msg.Add("2025/03/24 09:25"); //チェックポイント
-                kw = new KeyWord(".txt", true);
+                kw = new KeyWord { Word = ".txt", Fuzzy = true };
                 if (!kw.MatchTo(info, MatchToExtension.Include)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:26"); //チェックポイント
-                kw = new KeyWord(".txt", true);
+                kw = new KeyWord { Word = ".txt", Fuzzy = true };
                 if (kw.MatchTo(info, MatchToExtension.Exclude)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:27"); //チェックポイント
-                kw = new KeyWord("es", true);
+                kw = new KeyWord { Word = "es", Fuzzy = true };
                 if (!kw.MatchTo(info, MatchToExtension.Include)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:28"); //チェックポイント
-                kw = new KeyWord("es", true);
+                kw = new KeyWord { Word = "es", Fuzzy = true };
                 if (!kw.MatchTo(info, MatchToExtension.Exclude)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:29"); //チェックポイント
-                kw = new KeyWord("Dir", true);
+                kw = new KeyWord { Word = "Dir", Fuzzy = true };
                 if (kw.MatchTo(info, MatchToExtension.Include)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:30"); //チェックポイント
-                kw = new KeyWord("Dir", true);
+                kw = new KeyWord { Word = "Dir", Fuzzy = true };
                 if (kw.MatchTo(info, MatchToExtension.Exclude)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:31"); //チェックポイント
-                kw = new KeyWord("test", false);
+                kw = new KeyWord { Word = "test", Fuzzy = false };
                 if (kw.MatchTo(info, MatchToExtension.Include)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:32"); //チェックポイント
-                kw = new KeyWord("test", false);
+                kw = new KeyWord { Word = "test", Fuzzy = false };
                 if (!kw.MatchTo(info, MatchToExtension.Exclude)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:33"); //チェックポイント
-                kw = new KeyWord("test.txt", false);
+                kw = new KeyWord { Word = "test.txt", Fuzzy = false };
                 if (!kw.MatchTo(info, MatchToExtension.Include)){
                     return msg;
                 }
                 msg.Add("2025/03/24 09:33"); //チェックポイント
-                kw = new KeyWord("test.txt", false);
+                kw = new KeyWord { Word = "test.txt", Fuzzy = false };
                 if (kw.MatchTo(info, MatchToExtension.Exclude)){
                     return msg;
                 }

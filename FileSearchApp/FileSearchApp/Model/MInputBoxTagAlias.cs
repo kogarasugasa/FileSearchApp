@@ -249,23 +249,9 @@ namespace FileSearchApp
                     _fileNameTextBox.Width = this.Width - 36;
                     _aliasTextBox.Width = this.Width - _aliasTextBox.Left - 26;
                 };
-                _aliasTextBox.KeyDown += (s, e) =>
-                {
-                    if (e.KeyCode == Keys.Escape)
-                    {
-                        this.Close();
-                    }
-                };
                 _aliasTextBox.TextChanged += (s, e) =>
                 {
                     _vm.Alias = _aliasTextBox.Text;
-                };
-                _listView.KeyDown += (s, e) =>
-                {
-                    if (e.KeyCode == Keys.Escape)
-                    {
-                        this.Close();
-                    }
                 };
                 _listView.ItemChecked += (s, e) =>
                 {

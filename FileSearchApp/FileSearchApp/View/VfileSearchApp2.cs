@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using CustomFunctions;
+using System.CodeDom;
 
 namespace FileSearchApp
 {
@@ -21,33 +22,28 @@ namespace FileSearchApp
                 this.AllocateTab(label, e.Record);
                 _vm.OnSelectClick(e.Record.Key);
             };
-            _vm.TabRemoving += (s, e) =>
-            {
+            _vm.TabRemoving += (s, e) => {
                 // すべてのタブ Control を取得する
                 var tabControls = new List<Control>();
                 for (int i = 0; i < this.Controls.Count; i++)
                 {
-                    if (object.ReferenceEquals(this.Controls[i].Tag, _controlTag_Tab))
-                    {
+                    if (object.ReferenceEquals(this.Controls[i].Tag, _controlTag_Tab)){
                         tabControls.Add(this.Controls[i]);
                     }
                 }
                 // タブが1個以下の場合は削除しない
-                if (tabControls.Count <= 1)
-                {
+                if (tabControls.Count <= 1){
                     return;
                 }
                 // 削除するアイテムを取得する
                 var removeItems = tabControls.Where(val => val.Name == e.Record.Key);
-                if (removeItems.Count() != 1)
-                {
+                if (removeItems.Count() != 1){
                     throw new Exception(
                         "削除対象のタブが見つからない。または2つ以上検出されました"
                     );
                 }
                 // アイテムを削除しタブの位置を調整する
-                removeItems.Get(0).IfSome(removeItem =>
-                {
+                removeItems.Get(0).IfSome(removeItem =>{
                     // 現在の位置を取得する
                     var leftPos = tabControls.Select(val => val.Left).ToList();
                     // 削除する
@@ -63,8 +59,7 @@ namespace FileSearchApp
                     }
                 });
             };
-            _vm.TabChanging += (s, e) =>
-            {
+            _vm.TabChanging += (s, e) => {
                 lock (_lock)
                 {
                     e.Record.ListView.ClearEventAll();
@@ -73,18 +68,19 @@ namespace FileSearchApp
                 }
                 for (int i = 0; i < this.Controls.Count; i++)
                 {
-                    if (object.ReferenceEquals(this.Controls[i], e.Record.UiObjectKey))
-                    {
+                    if (object.ReferenceEquals(this.Controls[i], e.Record.UiObjectKey)){
                         var lbl = (Label)this.Controls[i];
-                        lbl.Text = MsPGothic.GetAdjustedText(e.Record.Text, lbl.Width - 6);
+                        lbl.Text = this.GetTabText(e.Record.Text, lbl.Width);
+                        // lbl.Text = MsPGothic.GetAdjustedText(
+                        //     e.Record.Text.ToHarf(), lbl.Width - 6
+                        // );
                         lbl.BackColor = _vm.DefaultColor;
                         lbl.BorderStyle = BorderStyle.None;
                         break;
                     }
                 }
             };
-            _vm.TabChanged += (s, e) =>
-            {
+            _vm.TabChanged += (s, e) => {
                 var controls = new List<Control>();
                 for (int i = 0; i < this.Controls.Count; i++) controls.Add(this.Controls[i]);
                 var tab = controls
@@ -92,17 +88,17 @@ namespace FileSearchApp
                     .Where(val => val.Name == e.Record.Key)
                     .Get(0)
                 ;
-                tab.IfSome(some =>
-                {
-                    if (some.GetType() == new Label().GetType())
-                    {
+                tab.IfSome(some => {
+                    if (some.GetType() == new Label().GetType()){
                         var lbl = (Label)some;
-                        lbl.Text = MsPGothic.GetAdjustedText(e.Record.Text, lbl.Width - 6);
+                        lbl.Text = this.GetTabText(e.Record.Text, lbl.Width);
+                        // lbl.Text = MsPGothic.GetAdjustedText(
+                        //     e.Record.Text.ToHarf(), lbl.Width - 6
+                        // );
                         lbl.BackColor = Color.FromArgb(0, this.BackColor);
                         lbl.BorderStyle = BorderStyle.FixedSingle;
                     }
-                    else
-                    {
+                    else{
                         throw new Exception("Contros を Label にキャスト出来ません");
                     }
                 });
@@ -118,8 +114,7 @@ namespace FileSearchApp
                 e.Record.FileSearch.RiseEventAll();
                 e.Record.ListView.RiseEventAll();
                 var selectionIndex = e.Record.ListView.SelectedIndex;
-                if (selectionIndex != -1 && selectionIndex < _listView.VirtualListSize)
-                {
+                if (selectionIndex != -1 && selectionIndex < _listView.VirtualListSize){
                     _listView.EnsureVisible(e.Record.ListView.SelectedIndex);
                 }
                 _searchWordsTxtbox.Focus();
@@ -135,45 +130,37 @@ namespace FileSearchApp
             // ============================================================
             _vm.Record.Option.OptionMenuItemsChanged += (s, e) =>
             {
-                this.InvokeIfRequiredElseNonInvoke(() =>
-                {
+                this.InvokeIfRequiredElseNonInvoke(() =>{
                     this.ContextMenuStrip.Items.Clear();
                     this.ContextMenuStrip.Items.AddRange(e.Items);
                 });
             };
             _vm.Record.ListView.ViewModelCursorChanged += (s, e) =>
             {
-                this.Invoke((MethodInvoker)delegate ()
-                {
+                this.Invoke((MethodInvoker)delegate(){
                     _listView.Cursor = e.Value;
                 });
             };
             _vm.Record.ListView.ViewModelDataSourceChanged += (s, e) =>
             {
-                this.Invoke((MethodInvoker)delegate ()
-                {
+                this.Invoke((MethodInvoker)delegate(){
                     //リストサイズが違うときだけ更新する
-                    if (_listView.VirtualListSize != e.ListSize)
-                    {
+                    if (_listView.VirtualListSize != e.ListSize){
                         _listView.VirtualListSize = e.ListSize;
                         this.Text = _title + " : " + e.ListSize.ToString();
                     }
-                    else if (e.Redraw)
-                    {
+                    else if (e.Redraw){
                         _listView.RedrawItems();
                     }
                 });
             };
             _vm.Record.ListView.ViewModelFileSizeUpdated += (s, e) =>
             {
-                this.Invoke((MethodInvoker)delegate ()
-                {
-                    if (e.Numerator == e.Denominator)
-                    {
+                this.Invoke((MethodInvoker)delegate(){
+                    if (e.Numerator == e.Denominator){
                         this.Text = _title + " : " + _vm.Record.ListView.Count;
                     }
-                    else
-                    {
+                    else{
                         this.Text = (
                             e.ProgressRatioPercentile +
                             "%" +
@@ -185,8 +172,7 @@ namespace FileSearchApp
             };
             _vm.Record.FileSearch.ViewModeRunCaptionChanged += (s, e) =>
             {
-                this.Invoke((MethodInvoker)delegate ()
-                {
+                this.Invoke((MethodInvoker)delegate(){
                     _runSearchBtn.Text = e.Value;
                 });
             };
@@ -194,6 +180,7 @@ namespace FileSearchApp
         Label AddTab()
         {
             var label = new Label();
+            this.Controls.Add(label);
             label.Tag = _controlTag_Tab; // タブとしてタグ付する
             label.TextAlign = ContentAlignment.MiddleCenter;
             label.BackColor = _vm.DefaultColor;
@@ -208,34 +195,30 @@ namespace FileSearchApp
                 if (this.Controls[i].Tag == _controlTag_Tab) cnt++;
             }
             // 新しいタブの表示位置を決定する
-            label.Left = 10 + (label.Width + 1) * cnt;
-            this.Controls.Add(label);
+            label.Left = _tabOffset + (label.Width + 1) * (cnt - 1);
             return label;
         }
-        void AllocateTab(Label tab, TabRecord record)
+        void AllocateTab(Label pLabel, TabRecord pRecord)
         {
-            record.UiObjectKey = tab;
-            tab.Text = this.GetTabText(record.Text, tab.Width);
-            tab.Name = record.Key;
-            tab.BackColor = _vm.DefaultColor;
-            tab.MouseDown += this.Tab_MouseDown;
-            tab.MouseUp += this.Tab_MouseUp;
-            tab.MouseClick += (sender, eventArgs) =>
+            pRecord.UiObjectKey = pLabel;
+            pLabel.Text = this.GetTabText(pRecord.Text, pLabel.Width);
+            pLabel.Name = pRecord.Key;
+            pLabel.BackColor = _vm.DefaultColor;
+            pLabel.MouseDown += this.Tab_MouseDown;
+            pLabel.MouseUp += this.Tab_MouseUp;
+            pLabel.MouseClick += (sender, eventArgs) =>
             {
                 if (_tabMoved){
                     return;
                 }
                 var lbl = (Label)sender;
-                if (eventArgs.Button == MouseButtons.Right)
-                {
-                    if (_vm.Count <= 1)
-                    {
+                if (eventArgs.Button == MouseButtons.Right){
+                    if (_vm.Count <= 1){
                         return;
                     }
                     _vm.OnRemoveClick(lbl.Name);
                 }
-                else if (eventArgs.Button == MouseButtons.Left)
-                {
+                else if (eventArgs.Button == MouseButtons.Left){
                     _vm.OnSelectClick(lbl.Name);
                 }
             };

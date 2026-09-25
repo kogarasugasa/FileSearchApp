@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Collections.Concurrent;
+using System.Runtime.Serialization;
 
 namespace FileSearchApp
 {

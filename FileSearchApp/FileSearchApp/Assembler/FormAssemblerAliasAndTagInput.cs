@@ -25,11 +25,10 @@ namespace FileSearchApp
             his.Read(conf.GetSearchResultHistory);
             //表示
             var icon = MyIcon.ExtractAssociatedIconFromExecutingAssembly();
-            var name = ExFileInfo.GetFileName(pFilePath);
             icon.IfSome(some => MInputBoxTagAlias.SetIcon(some));
             var result = MInputBoxTagAlias.GetTagAlias(
                 pFilePath,
-                alias.GetAlias(ExFileInfo.GetFileName(pFilePath)).GetOrDefault(name),
+                alias.GetAlias(ExFileInfo.GetFileName(pFilePath)).GetOrDefault(""),
                 tags.GetAllTags(),
                 tags.GetTags(ExFileInfo.GetFileName(pFilePath))
             );

@@ -8,11 +8,11 @@ namespace FileSearchApp
     {
         public string Word = string.Empty;
         public bool Fuzzy = false;
-        public KeyWord(string word, bool fuzzy)
-        {
-            this.Word = word;
-            this.Fuzzy = fuzzy;
-        }
+        // public KeyWord(string word, bool fuzzy)
+        // {
+        //     this.Word = word;
+        //     this.Fuzzy = fuzzy;
+        // }
         public bool MatchTo(ExFileInfo pInfo, MatchToExtension pIncludeExtension)
         {
             if (pInfo.IsDefault()){
@@ -37,7 +37,7 @@ namespace FileSearchApp
         }
         public KeyWord Clone()
         {
-            return new KeyWord(this.Word, this.Fuzzy);
+            return new KeyWord { Word = this.Word, Fuzzy = this.Fuzzy };
         }
         public override bool Equals(object obj)
         {

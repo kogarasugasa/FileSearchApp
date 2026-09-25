@@ -26,31 +26,35 @@ namespace FileSearchApp
         string _contextMenuPath;
         string _searchScriptPath;
         string _candidatePath;
-        string _continueTabPath;
+        string _continueTabDetailPath;
         string _lockControlPath;
         static string _curDir = string.Empty;
         readonly string _tempFilePath;
         readonly string _settingsDirFilePath = Application.StartupPath + @"\FileSearchApp.ini";
         public static readonly int AvailableCPUs = Environment.ProcessorCount / 4 + 1;
-        readonly string _lockInfo = (
-            DateTime.Now.ToString("yyyyMMddHHmmss") +  
-            "," + 
-            Environment.MachineName + 
-            "," + 
-            Process.GetCurrentProcess().Id
-        );
+        readonly string _lockInfo = string.Join(",", new string[]
+        {
+            Environment.UserName,
+            DateTime.Now.ToString("yyyyMMddHHmmss"),
+            Environment.MachineName,
+            Process.GetCurrentProcess().Id.ToString(),
+        });
         MSettings()
         {
             //設定から読み込む
-            if (TryGetSettingsDir(out _curDir)){
-                if (!Directory.Exists(_curDir)){
+            if (TryGetSettingsDir(out _curDir))
+            {
+                if (!Directory.Exists(_curDir))
+                {
                     throw new Exception("設定ファイルが保存されているパスが存在しません : " + _curDir);
                 }
             }
-            else{
+            else
+            {
                 _curDir = Application.StartupPath + @"\settings";
             }
-            if (!Directory.Exists(_curDir)){
+            if (!Directory.Exists(_curDir))
+            {
                 Directory.CreateDirectory(_curDir);
             }
             _searchDirFilePath = _curDir + @"\SettingsSearchDirectorys.ini";
@@ -65,8 +69,8 @@ namespace FileSearchApp
             _contextMenuPath = _curDir + @"\SettingsContextMenu.ini";
             _searchScriptPath = _curDir + @"\SearchScript";
             _candidatePath = _curDir + @"\SettingsCandidate.ini";
-            _continueTabPath = _curDir + @"\Tab";
-            _lockControlPath = _curDir + @"\LockApp.lock";this.TryGetLock(_lockControlPath, false);
+            _continueTabDetailPath = _curDir + @"\Tab";
+            _lockControlPath = _curDir + @"\LockApp.lock"; this.TryGetLock(_lockControlPath, false);
             _tempFilePath = Application.StartupPath + @"\DoDeleteThisFile.txt";
         }
         ~MSettings()
@@ -167,6 +171,7 @@ namespace FileSearchApp
         public void ChangeToReadOnly()
         {
             if (this.IsReadOnly()){
+                this.LockReleased.Invoke(this, new EventArgs());
                 return;
             }
             try
@@ -182,6 +187,7 @@ namespace FileSearchApp
         public void ChangeToWritable()
         {
             if (!this.IsReadOnly()){
+                this.LockAcquired.Invoke(this, new EventArgs());
                 return;
             }
             this.TryGetLock(_lockControlPath, true);
@@ -211,21 +217,24 @@ namespace FileSearchApp
                 return true;
             }
         }
-        public Dictionary<string, IEnumerable<string>> ReadContinueTab()
+        public Dictionary<string, IEnumerable<string>> ReadContinueTabDetail()
         {
+            //var _continueTabDetailPath = @"c:\users\kobayashiha\desktop\test";
             var data = new Dictionary<string, IEnumerable<string>>();
             try
             {
-                if (!Directory.Exists(_continueTabPath)){
+                if (!Directory.Exists(_continueTabDetailPath)){
                     return data;
                 }
-                var tabs = Directory.GetFiles(_continueTabPath);
+                var tabs = Directory.GetFiles(_continueTabDetailPath);
+                // 数値に変換出来るタブを追加する
                 foreach (var tab in tabs)
                 {
                     var name = Path.GetFileNameWithoutExtension(tab);
                     var paths = this.ReadSettings(tab);
                     data.Add(name, paths);
                 }
+                // 数値に変換出来なかったファイル名を改めて採番して追加する
             }
             catch (Exception ex)
             {
@@ -233,20 +242,26 @@ namespace FileSearchApp
             }
             return data;
         }
-        public void WriteContinueTab(Dictionary<string, IEnumerable<string>> pData)
+        public void WriteContinueTabDetail(Dictionary<string, IEnumerable<string>> pData)
         {
+            //var _continueTabDetailPath = @"c:\users\kobayashiha\desktop\test";
+            if (this.IsReadOnly())
+            {
+                return;
+            }
             try
             {
-                if (!Directory.Exists(_continueTabPath)){
-                    Directory.CreateDirectory(_continueTabPath);
+                if (!Directory.Exists(_continueTabDetailPath))
+                {
+                    Directory.CreateDirectory(_continueTabDetailPath);
                 }
                 // 既存を削除する
-                var paths = Directory.GetFiles(_continueTabPath);
+                var paths = Directory.GetFiles(_continueTabDetailPath);
                 foreach (var path in paths) File.Delete(path);
                 // Dictonary.Key をファイル名にして保存する
                 foreach (var key in pData.Keys)
                 {
-                    var path = _continueTabPath + "\\" + key.ToString() + ".ini";
+                    var path = _continueTabDetailPath + "\\" + key.ToString() + ".ini";
                     this.WriteSettings(path, pData[key]);
                 }
             }

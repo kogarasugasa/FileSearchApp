@@ -120,17 +120,17 @@ namespace FileSearchApp
             while (i < words.Count)
             {
                 if (i == words.Count - 1){
-                    result.Add(new KeyWord(words[i], false));
+                    result.Add(new KeyWord { Word = words[i], Fuzzy = false });
                     break;
                 }
                 var main = words[i];
                 var sub = words.Skip(i + 1).ToList();
                 var mix = this.ConvToMixSearchWords(main, sub, pMinMatchSeq);
                 if (mix == main){
-                    result.Add(new KeyWord(mix, false));
+                    result.Add(new KeyWord { Word = mix, Fuzzy = false });
                 }
                 else{
-                    result.Add(new KeyWord(mix, true));
+                    result.Add(new KeyWord { Word = mix, Fuzzy = true });
                     var match = sub.Where(val => MyTool.FuzzyContains(mix, val));
                     foreach (var val in match) words.Remove(val);
                 }

@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using CSharpNized.Rust.std;
 using CustomFunctions;
 
-namespace FileSearchApp
+namespace CustomFunctions
 {
     public class CandidateTextListBox
     {
@@ -18,8 +18,6 @@ namespace FileSearchApp
         static readonly Type _labelType = new Label().GetType();
         readonly List<object> _items = new List<object>();
         bool _downAfterMoved = false;
-        IOption<Action> _updateMethod = new None<Action>();
-        readonly System.Threading.Timer _updateTimer;
         int _selectedIndex;
         bool _rowMove = false;
         Color _selectColor = Color.LightBlue;
@@ -46,7 +44,7 @@ namespace FileSearchApp
             try
             {
                 if (items.Any()){
-                _items.AddRange(items);
+                    _items.AddRange(items);
                 }
                 else{
                     _items.Add("/* 入力候補が設定されていません。オプションから設定できます */");
@@ -73,6 +71,26 @@ namespace FileSearchApp
                     lbl.Height = this.RowHeight;
                     lbl.TextAlign = ContentAlignment.MiddleLeft;
                     lbl.BackColor = Color.White;
+                    lbl.Paint += (s, e) => {
+                        var sender = (Label)s;
+                        var rect = sender.Bounds;
+                        rect = new Rectangle(0, 0, rect.Width, rect.Height);
+                        var bottomLine = new Point[]{
+                            new Point(0, rect.Height - 1),
+                            new Point(rect.Width - 1, rect.Height - 1)
+                        };
+                        var leftLine = new Point[]{
+                            new Point(0, 0),
+                            new Point(0, rect.Height - 1)
+                        };
+                        var rightLine = new Point[]{
+                            new Point(rect.Width - 1, 0),
+                            new Point(rect.Width - 1, rect.Height - 1)
+                        };
+                        e.Graphics.DrawLine(Pens.Black, bottomLine[0], bottomLine[1]); 
+                        e.Graphics.DrawLine(Pens.Black, leftLine[0], leftLine[1]); 
+                        e.Graphics.DrawLine(Pens.Black, rightLine[0], rightLine[1]); 
+                    };
                     lbl.MouseDown += (s, e) => {
                         _downAfterMoved = false;
                         _mouseDownPos = Cursor.Position;
@@ -93,7 +111,6 @@ namespace FileSearchApp
                             this.Dispose();
                         }
                     };
-                    lbl.Paint += this.Row_Paint;
                     lbl.MouseWheel += this.MouseWheel;
                     lbl.MouseEnter += (s, e) => {
                         if (s.GetType() == _labelType){
@@ -126,13 +143,6 @@ namespace FileSearchApp
                 };
                 _scrlArea.MouseWheel += this.MouseWheel;
                 this.DisplayUpdate();
-                // 
-                _updateTimer = new System.Threading.Timer(
-                    this.Timer_Elapsed, // コールバック
-                    new object(), // コールバックに渡す引数
-                    0, // 開始までの待機時間
-                    20 // インターバル
-                );
             }
             catch (Exception ex)
             {
@@ -188,7 +198,6 @@ namespace FileSearchApp
                 return;
             }
             if (disposing) {
-                _updateTimer.Dispose();
                 this.ChangeEvent(false);
                 foreach (var lbl in _labels)
                 {
@@ -299,39 +308,37 @@ namespace FileSearchApp
         void Row_Mouse_Move(object s, MouseEventArgs e)
         {
             // 候補の表示を変更する
-            var cur = Cursor.Position;
-            if (_beforeMouseMovePos == cur){
+            if (_beforeMouseMovePos == Cursor.Position){
                 return;
             }
             var beforeOffset = _offset;
-            _beforeMouseMovePos = cur;
+            _beforeMouseMovePos = Cursor.Position;
             _rowMove = true;
-            var rowMove = (_mouseDownPos.Y - cur.Y) / RowHeight;
+            var rowMove = (_mouseDownPos.Y - Cursor.Position.Y) / RowHeight;
             _offset = _mouseDownOffset + rowMove;
             if (beforeOffset != _offset){
                 _downAfterMoved = true;
             }
-            lock (_updateTimer) _updateMethod = Some.New<Action>(this.DisplayUpdate);
+            this.DisplayUpdate();
         }
         void MouseWheel(object s, MouseEventArgs e)
         {
             _offset -= e.Delta / this.RowHeight / 2;
             _rowMove = true;
-            lock (_updateTimer) _updateMethod = Some.New<Action>(this.DisplayUpdate);
+            this.DisplayUpdate();
         }
         void ScrlArea_Mouse_Move(object s, MouseEventArgs e)
         {
-            var cur = Cursor.Position;
             // 候補の表示を変更する
-            if (_beforeMouseMovePos == cur){
+            if (_beforeMouseMovePos == Cursor.Position){
                 return;
             }
             var beforeOffset = _offset;
-            _beforeMouseMovePos = cur;
+            _beforeMouseMovePos = Cursor.Position;
             _rowMove = false;
             var rect = _form.RectangleToScreen(_scrlArea.Bounds);
             var range = new Range(rect.Top, rect.Bottom);
-            var per = range.GetPercentile(cur.Y + this.RowHeight / 2);
+            var per = range.GetPercentile(Cursor.Position.Y + this.RowHeight / 2);
             if (per < 0){
                 // 上行き過ぎ
                 _offset = 0;
@@ -347,13 +354,13 @@ namespace FileSearchApp
             if (beforeOffset != _offset){
                 _downAfterMoved = true;
             }
-            lock (_updateTimer) _updateMethod = Some.New<Action>(this.DisplayUpdate);
+            this.DisplayUpdate();
         }
         void ScrlArea_Paint(object s, PaintEventArgs e)
         {
             if (s.GetHashCode() != _scrlArea.GetHashCode()){
                 throw new Exception(
-                    "ScrlArea_Paint 引数「object s」が「Label _scrlArea」ではありません"
+                    "ScrlArea_Paint　引数「object s」が「Label _scrlArea」ではありません"
                 );
             }
             Rectangle cur;
@@ -383,45 +390,15 @@ namespace FileSearchApp
                 e.Graphics.FillRectangle(Brushes.Black, rect);
             }
             var rightLine = new Point[]{
-                new Point(_scrlArea.Width - 1, 0),
-                new Point(_scrlArea.Width - 1, _scrlArea.Height - 1)
+                new Point(_scrlArea.Width -1, 0),
+                new Point(_scrlArea.Width -1, _scrlArea.Height - 1),
             };
-            e.Graphics.DrawLine(Pens.Black, rightLine[0], rightLine[1]);
             var bottomLine = new Point[]{
                 new Point(0, _scrlArea.Height - 1),
-                new Point(_scrlArea.Width - 1, _scrlArea.Height - 1)
-            };
-            e.Graphics.DrawLine(Pens.Black, bottomLine[0], bottomLine[1]);
-        }
-        void Row_Paint(object s, PaintEventArgs e)
-        {
-            var rect = ((Label)s).Bounds;
-            var leftLine = new Point[]{
-                new Point(0, 0),
-                new Point(0, rect.Height - 1)
-            };
-            e.Graphics.DrawLine(Pens.Black, leftLine[0], leftLine[1]);
-            var rightLine = new Point[]{
-                new Point(rect.Width - 1, 0),
-                new Point(rect.Width - 1, rect.Height - 1)
+                new Point(_scrlArea.Width -1, _scrlArea.Height - 1),
             };
             e.Graphics.DrawLine(Pens.Black, rightLine[0], rightLine[1]);
-            e.Graphics.DrawLine(Pens.Black, leftLine[0], leftLine[1]);
-            var bottomLine = new Point[]{
-                new Point(0, rect.Height - 1),
-                new Point(rect.Width - 1, rect.Height - 1)
-            };
             e.Graphics.DrawLine(Pens.Black, bottomLine[0], bottomLine[1]);
-        }
-        void Timer_Elapsed(object stateInfo)
-        {
-            _form.InvokeIfRequiredElseNonInvoke(() => {
-                lock (_updateTimer)
-                {
-                    _updateMethod.IfSome(some => some());
-                    _updateMethod = new None<Action>();
-                }
-            });
         }
         void DisplayUpdate()
         {
@@ -439,6 +416,7 @@ namespace FileSearchApp
                 if (i < _offset || i > _offset + limit - 1){
                     if (_form.Controls.Contains(_labels[i])){
                         _form.Controls.Remove(_labels[i]);
+                        continue;
                     }
                     continue;
                 }
@@ -447,6 +425,7 @@ namespace FileSearchApp
                     _form.Controls.Add(_labels[i]);
                     _labels[i].BringToFront();
                 }
+                _labels[i].Invalidate();
             }
             if (limit < _labels.Count){
                 if (!_form.Controls.Contains(_scrlArea)){
@@ -461,7 +440,6 @@ namespace FileSearchApp
                 }
             }
             _scrlArea.Invalidate();
-            foreach (var item in _labels) item.Invalidate();
             this.ResumeLayout();
         }
         void SuspendLayout()

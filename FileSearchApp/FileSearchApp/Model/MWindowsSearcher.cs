@@ -49,7 +49,8 @@ namespace FileSearchApp
             {
                 foreach (var info in MWindowsSearcher.YieldReturnSearchResults(searchTask, results, pCt))
                 {
-                    if (MWindowsSearcher.IsExcludeDirectory(info.FilePath, excludePaths)){
+                    if (MWindowsSearcher.IsExcludeDirectory(info.FilePath, excludePaths))
+                    {
                         continue;
                     }
                     foreach (var method in this.RunActionWhenFileFound)
@@ -94,7 +95,8 @@ namespace FileSearchApp
             while (true)
             {
                 // キャンセルされた
-                if (ct.IsCancellationRequested){
+                if (ct.IsCancellationRequested)
+                {
                     break;
                 }
                 // 検索完了済かつ値取得中のタスクが無い

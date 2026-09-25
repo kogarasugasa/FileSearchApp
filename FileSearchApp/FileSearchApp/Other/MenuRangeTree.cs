@@ -66,26 +66,37 @@ namespace FileSearchApp
                                 val.RangeEndNum > row.RangeEndNum;
                         });
                     if (upperSettings.Count() != 0){
-                        var upperSetting = upperSettings.Max();
-                        var upperItem = items[upperSetting.RangeStartNum];
-                        var curItem = items[row.RangeStartNum];
-                        upperItem.DropDown.Items.Add(curItem);
+                        if (IsExtensionsEnabled(row.Extensions, pExFileInfo.FilePath))
+                        {
+                            var upperSetting = upperSettings.Max();
+                            var upperItem = items[upperSetting.RangeStartNum];
+                            var curItem = items[row.RangeStartNum];
+                            upperItem.DropDown.Items.Add(curItem);
+                        }
                     }
                 }
                 // 上位が存在しないものだけ結果として返す
                 var topItems = new List<ToolStripMenuItem>();
                 foreach (var setting in _menuSettings)
                 {
-                    bool isUpperExists = _menuSettings.Any(val => {
+                    bool isUpperExists = _menuSettings.Any(val =>
+                    {
                         var result = val.RangeStartNum < setting.RangeStartNum;
                         result &= val.RangeEndNum > setting.RangeEndNum;
                         return result;
                     });
-                    if (isUpperExists){
+                    if (isUpperExists)
+                    {
                         continue;
                     }
-                    var extensions = setting.Extensions.Split('/');
-                    if(!extensions.Any(val => MyTool.FuzzyContains(val, pExFileInfo.FilePath))){
+                    // if (IsExtensionsEnabled(setting.Extensions, pExFileInfo.FilePath))
+                    // {
+                    //     var item = items[setting.RangeStartNum];
+
+                    //     topItems.Add(items[setting.RangeStartNum]);
+                    // }
+                    if (!IsExtensionsEnabled(setting.Extensions, pExFileInfo.FilePath))
+                    {
                         continue;
                     }
                     topItems.Add(items[setting.RangeStartNum]);
@@ -106,24 +117,29 @@ namespace FileSearchApp
                 foreach (var line in pContextMenuSettings)
                 {
                     var arry = line.Split('|');
-                    if (arry.Count() != 8){
+                    if (arry.Count() != 8)
+                    {
                         return;
                     }
                     try
                     {
                         int start;
-                        if (!int.TryParse(arry[0], out start)){
+                        if (!int.TryParse(arry[0], out start))
+                        {
                             throw new Exception(arry[0]);
                         }
                         int end;
-                        if (!int.TryParse(arry[1], out end)){
+                        if (!int.TryParse(arry[1], out end))
+                        {
                             throw new Exception(arry[1]);
                         }
                         int seq;
-                        if (!int.TryParse(arry[3], out seq)){
+                        if (!int.TryParse(arry[3], out seq))
+                        {
                             throw new Exception(arry[3]);
                         }
-                        var row = new SettingsRow{
+                        var row = new SettingsRow
+                        {
                             RangeStartNum = start,
                             RangeEndNum = end,
                             Text = arry[2],
@@ -132,14 +148,16 @@ namespace FileSearchApp
                             ArgumentsPre = arry[6],
                             ArgumentsPost = arry[7]
                         };
-                        if (row.RangeStartNum == row.RangeEndNum){
+                        if (row.RangeStartNum == row.RangeEndNum)
+                        {
                             throw new Exception("開始と終了が同じです");
                         }
                         var startNums = _menuSettings.Select(val => val.RangeStartNum);
                         var endNums = _menuSettings.Select(val => val.RangeEndNum);
                         var isNonUnique = startNums.Union(endNums)
                             .Any(val => val == row.RangeStartNum || val == row.RangeEndNum);
-                        if (isNonUnique){
+                        if (isNonUnique)
+                        {
                             throw new Exception(row.RangeStartNum.ToString());
                         }
                         _menuSettings.Add(row);
@@ -150,6 +168,15 @@ namespace FileSearchApp
                     }
                 }
             }
+        }
+        static bool IsExtensionsEnabled(
+        string pExtensionsListString,
+        string pFilePath)
+        {
+            return pExtensionsListString
+                .Split('/')
+                .Any(val => MyTool.FuzzyContains(val, pFilePath))
+            ;
         }
         class SettingsRow : IComparer<SettingsRow>, IComparable<SettingsRow>
         {

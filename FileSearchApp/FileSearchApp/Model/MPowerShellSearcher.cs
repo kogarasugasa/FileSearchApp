@@ -152,7 +152,8 @@ namespace FileSearchApp
                 FileName = "powershell_ise.exe",
                 Arguments = pScriptPath,
                 UseShellExecute = false,
-                RedirectStandardOutput = false
+                RedirectStandardOutput = false,
+                WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
             };
             await Task.Run(() =>
             {

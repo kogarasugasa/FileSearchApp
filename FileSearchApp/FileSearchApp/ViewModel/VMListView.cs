@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using CSharpNized.Rust.std;
 using CustomFunctions;
+using System.Net;
 
 namespace FileSearchApp
 {

@@ -32,8 +32,8 @@ namespace FileSearchApp
                 var hiss = new MHistorySearcher(his);
                 var infos = new List<ExFileInfo>();
                 hiss.SearchWords = new List<KeyWord>(){
-                    new KeyWord("5", true),
-                    new KeyWord("6", true),
+                    new KeyWord { Word = "5", Fuzzy = true },
+                    new KeyWord { Word = "6", Fuzzy = true },
                 };
                 hiss.RunActionWhenFileFound.Add((info) => infos.Add(info));
 

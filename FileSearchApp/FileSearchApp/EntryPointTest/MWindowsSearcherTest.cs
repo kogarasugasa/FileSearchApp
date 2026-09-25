@@ -27,15 +27,22 @@ namespace FileSearchApp
                 msg.Add("2024/07/23 10:57");
                 var win = new MWindowsSearcher();
                 win.GetIncludeDirectorys = () => new List<string>{ dir };;
-                win.SearchWords = new List<KeyWord>{ new KeyWord("789dddddddddd", true) };
+                win.SearchWords = new List<KeyWord>
+                {
+                    new KeyWord{Word = "789dddddddddd", Fuzzy = true}
+                };
                 var infos = new List<ExFileInfo>();
-                win.RunActionWhenFileFound.Add(info => infos.Add(info));
+                win.RunActionWhenFileFound.Add(info =>
+                {
+                    infos.Add(info);
+                });
                 using (var cts = new CancellationTokenSource())
                 {
                     var searchTask = win.StartSearchAsync(cts.Token);
-                    Task.Delay(1000).Wait();
+                    Task.Delay(2000).Wait();
                     if (!searchTask.IsCompleted){
                         cts.Cancel();
+                        msg.Add("2026/06/18 10:30"); //検索タイムアウトになってる
                         return msg;
                     }
                 }
@@ -50,7 +57,10 @@ namespace FileSearchApp
                 }
                 msg.Add("2024/07/23 12:00");
                 infos.Clear();
-                win.SearchWords = new List<KeyWord>{ new KeyWord("789dddddddddd", false) };
+                win.SearchWords = new List<KeyWord>
+                {
+                    new KeyWord{ Word = "789dddddddddd", Fuzzy = false }
+                };
                 using (var cts = new CancellationTokenSource())
                 {
                     var task = win.StartSearchAsync(cts.Token);

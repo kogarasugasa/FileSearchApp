@@ -2,9 +2,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using CSharpNized.Rust.std;
-using System.Security.Permissions;
+using System.Collections.ObjectModel;
 
 
 namespace FileSearchApp
@@ -14,8 +13,8 @@ namespace FileSearchApp
         readonly object _lock = new object();
         readonly FormAssembler _formAssembler;
         readonly List<TabRecord> _vmList = new List<TabRecord>();
-        public ReadOnlyCollection<TabRecord> Records { get { lock (_lock) return _vmList.AsReadOnly(); } }
         public int Count { get { lock (_lock) return _vmList.Count; } }
+        public ReadOnlyCollection<TabRecord> Records { get { lock (_lock) return _vmList.AsReadOnly(); }}
         public MTabManager(FormAssembler pFormAssembler)
         {
             _formAssembler = pFormAssembler;
@@ -90,7 +89,9 @@ namespace FileSearchApp
                 if (_vmList.Count == 0){
                     return this.AddUnlock();
                 }
-                return _vmList.First();
+                else{
+                    return _vmList[0];
+                }
             }
         }
         public IOption<TabRecord> GetViewModel(string pKey)

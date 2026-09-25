@@ -52,7 +52,7 @@ namespace FileSearchApp
             string pDirPath,
             CancellationToken ct)
             {
-                var dummy = new List<KeyWord>{ new KeyWord("*", true) };
+                var dummy = new List<KeyWord>{ new KeyWord { Word = "*", Fuzzy = true } };
                 var checkQuery = CreateIndexSearchQuerys(pDirPath, dummy, true, 0)
                     .First()
                 ;
@@ -69,7 +69,6 @@ namespace FileSearchApp
                 if (pCt.IsCancellationRequested){
                     return;
                 }
-CustomLogger.WriteLine("start " + query);
                 using (var conn = new OleDbConnection(_conStr))
                 using (var cmd = new OleDbCommand(query, conn))
                 using (var endCts = new CancellationTokenSource())
@@ -78,17 +77,20 @@ CustomLogger.WriteLine("start " + query);
                     var results = cmd.ExecuteReader();
                     while (true)
                     {
-                        if (pCt.IsCancellationRequested){
+                        if (pCt.IsCancellationRequested)
+                        {
                             break;
                         }
-                        if (endCts.IsCancellationRequested){
+                        if (endCts.IsCancellationRequested)
+                        {
                             break;
                         }
                         var tk = ReadAsyncOleDbDataReader(results, endCts, pCt);
                         pResult.Enqueue(tk);
                         ExFileInfo info;
                         info = await tk;
-                        if (info.IsDefault()){
+                        if (info.IsDefault())
+                        {
                             break;
                         }
                     }
@@ -102,20 +104,24 @@ CustomLogger.WriteLine("start " + query);
             CancellationTokenSource pEndCts,
             CancellationToken ct)
             {
-                if (await pReader.ReadAsync(ct)){
+                if (await pReader.ReadAsync(ct))
+                {
                     decimal fileSize = 0;
-                    if (!pReader.IsDBNull(1)){
+                    if (!pReader.IsDBNull(1))
+                    {
                         fileSize = pReader.GetDecimal(1);
                     }
                     var filePath = pReader.GetString(0);
                     // users Documents などが日本語名で返ってくるので変換する
                     filePath = ConvFilePath(filePath);
-                    var fileInfo = new ExFileInfo(filePath){
+                    var fileInfo = new ExFileInfo(filePath)
+                    {
                         Size = fileSize
                     };
                     return fileInfo;
                 }
-                else{
+                else
+                {
                     pEndCts.Cancel();
                 }
                 return ExFileInfo.GetDefault();
@@ -183,7 +189,7 @@ CustomLogger.WriteLine("start " + query);
                         }
                         before = cha;
                     }
-                    searchWords.Add(new KeyWord(searchWord, key.Fuzzy));
+                    searchWords.Add(new KeyWord { Word = searchWord, Fuzzy = key.Fuzzy });
                 }
                 if (searchWords.Count == 0){
                     throw new Exception("検索ワードに有効な文字がありません");

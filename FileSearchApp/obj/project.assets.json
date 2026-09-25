@@ -465,11 +465,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\wahuk\\MySoftware\\FileSearchApp\\FileSearchApp\\FileSearchApp.csproj",
+      "projectUniqueName": "G:\\source\\csharp\\FileSearchApp\\FileSearchApp\\FileSearchApp.csproj",
       "projectName": "FileSearchApp",
-      "projectPath": "C:\\Users\\wahuk\\MySoftware\\FileSearchApp\\FileSearchApp\\FileSearchApp.csproj",
+      "projectPath": "G:\\source\\csharp\\FileSearchApp\\FileSearchApp\\FileSearchApp.csproj",
       "packagesPath": "C:\\Users\\wahuk\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\wahuk\\MySoftware\\FileSearchApp\\FileSearchApp\\obj\\",
+      "outputPath": "G:\\source\\csharp\\FileSearchApp\\FileSearchApp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\wahuk\\AppData\\Roaming\\NuGet\\NuGet.Config"

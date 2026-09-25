@@ -8,8 +8,6 @@ namespace DeleteApp
 {
     public static class DeleteApp
     {
-        //[DllImport("kernel32.dll")]
-        //static extern bool FreeConsole();
         [STAThread]
         public static void Main(string[] args)
         {
