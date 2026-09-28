@@ -1,1 +1,0 @@
-start "" "FileSearchApp.exe" "-force"
