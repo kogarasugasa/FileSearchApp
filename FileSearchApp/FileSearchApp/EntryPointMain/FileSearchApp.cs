@@ -106,6 +106,7 @@ namespace FileSearchApp
         }
         public static bool LicenseConfirmation()
         {
+            // ライセンスを表示したことがあるかチェック
             var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var dirPath = roaming + @"\FileSearchApp";
             var checkPath = dirPath + @"\AppropriateUserOfLicense.txt";
@@ -113,62 +114,50 @@ namespace FileSearchApp
             {
                 return true;
             }
+            // ライセンスを表示
+            var message = CustomFunctions.GPLv2.Notice()
+                + Environment.NewLine + "|"
+                + Environment.NewLine + "|"
+                + Environment.NewLine + CustomFunctions.GPLv2.NoticeJp()
+            ;
+            Show(message);
+            // ライセンスを書き出し
             var path = AppDomain.CurrentDomain.BaseDirectory;
             path = path.EndsWith("\\") ? path + "License" : path + "\\License";
-            using (var w = new StreamWriter(path))
-            {
-                w.WriteLine(CustomFunctions.GPLv2.Notice());
-                w.WriteLine("|");
-                w.WriteLine("|");
-                w.WriteLine(CustomFunctions.GPLv2.NoticeJp());
-                w.WriteLine("|");
-                w.WriteLine("|");
-                w.WriteLine("次の画面での入力内容");
-                w.WriteLine("今日の日付の並び替え。年と月日を先頭から一文字ずつ交互につなげる");
-                w.WriteLine("例)2025/04/05 → 20042055");
-            }
-            using (var p = new System.Diagnostics.Process())
-            {
-                p.StartInfo = new System.Diagnostics.ProcessStartInfo()
-                {
-                    FileName = "notepad.exe",
-                    Arguments = path,
-                    UseShellExecute = true
-                };
-                p.Start();
-            }
-            var password = MInputBox.GetText("");
-            var isEligibleUser = password.Match(
-                none => false,
-                some =>
-                {
-                    var passSource = DateTime.Now.ToString("yyyyMMdd");
-                    var pass =
-                          passSource.Substring(0, 1)
-                        + passSource.Substring(4, 1)
-                        + passSource.Substring(1, 1)
-                        + passSource.Substring(5, 1)
-                        + passSource.Substring(2, 1)
-                        + passSource.Substring(6, 1)
-                        + passSource.Substring(3, 1)
-                        + passSource.Substring(7, 1);
-                    return pass == some;
-                }
-            );
             try
             {
-                if (isEligibleUser)
+                using (var writer = new StreamWriter(path))
                 {
-                    Directory.CreateDirectory(dirPath);
-                    File.CreateText(checkPath);
+                    writer.Write(CustomFunctions.GPLv2.License());
                 }
+                Directory.CreateDirectory(dirPath);
+                File.CreateText(checkPath);
             }
             catch (Exception ex)
             {
                 MMessageBox.Show(ex.Message);
                 return false;
             }
-            return isEligibleUser;
+            return true;
+        }
+        public static void Show(String pMessage)
+        {
+            var form = new Form() {
+                Width = 800,
+                Height = 500,
+            };
+            
+            var label = new Label()
+            {
+                Left = 0,
+                Top = 0,
+                Width = form.Width - 10,
+                Height = form.Height - 10,
+                AutoSize = true,
+                Text = pMessage,
+            };
+            form.Controls.Add(label);
+            Application.Run(form);
         }
     }
 }

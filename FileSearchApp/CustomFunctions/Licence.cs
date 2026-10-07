@@ -9,8 +9,8 @@ namespace CustomFunctions
         {
             var document = new List<string>()
             {
-                "Gnomovision version 69, Copyright (C) 2025 kobayashi hayato of author",
-                "Gnomovision comes with ABSOLUTELY NO WARRANTY;",
+                "FileSearchApp, Copyright (C) 2025 kobayashi hayato of author",
+                "FileSearchApp comes with ABSOLUTELY NO WARRANTY;",
                 "This is free software, and you are welcome",
                 "to redistribute it under certain conditions;",
                 "for details click option menu in license button",
@@ -21,9 +21,9 @@ namespace CustomFunctions
         {
             var document = new List<string>()
             {
-                "Gnomovision version 69, Copyright (C) 2025 作者 小林 隼斗",
-                "Gnomovision は*全くのの無保証*で提供されます",
-                "これはフリーソフトウェアであり、ある条件の下で再配布することが奨励されています",
+                "FileSearchApp, Copyright (C) 2025 作者 小林 隼斗",
+                "FileSearchAppには一切の保証が付属しません",
+                "これは自由なソフトウェア（フリーソフトウェア）であり、一定の条件のもとであなたがそれを再頒布することを歓迎します",
                 "詳しくは画面メニューのライセンスから確認してください",
             };
             return string.Join("\n", document);
